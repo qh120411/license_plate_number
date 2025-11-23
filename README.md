@@ -14,7 +14,7 @@ Step 4: Install required framework
 ``` bash
 pip install opencv-python easyocr ultralytics
 ```
-Step 5: Open test.py and run the script
+Step 5: Open demo.py and run the script
 ```bash
-python test.py
+python demo.py
 ```
