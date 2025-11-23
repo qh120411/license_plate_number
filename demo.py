@@ -5,6 +5,7 @@ import datetime
 
 
 reader = easyocr.Reader(['en'])
+ALLOWED = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 def preprocess_image(frame) :
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -12,7 +13,7 @@ def preprocess_image(frame) :
     return blur
 
 def read_plate(frame) :
-    res = reader.readtext(frame)
+    res = reader.readtext(frame, allowlist=ALLOWED)
     res_sort = sorted(res, key = lambda x : x[0][0][1])
     
     text = [text.replace(" ", "") for bbox, text, prob in res_sort]
@@ -20,7 +21,8 @@ def read_plate(frame) :
     plate = re.sub(r'[^A-Za-z0-9]', '', plate_raw)
     return plate
 
-cap = cv2.VideoCapture(0)
+url = "http://10.1.1.15:4747/video"
+cap = cv2.VideoCapture(url)
 count = 0
 last_plate = ""
 plate = ""
@@ -28,22 +30,34 @@ plate = ""
 while True :
     ret, frame = cap.read()
     if not ret : 
+        print("Không nhận được camera từ điện thoại")
         break
+    
+    h, w = frame.shape[:2]
+
+    # ROI = khung giữa (dễ nhất khi dí vào biển)
+    x1, y1 = int(w * 0.2), int(h * 0.3)
+    x2, y2 = int(w * 0.8), int(h * 0.7)
+
+    roi = frame[y1:y2, x1:x2]    # chỉ OCR vùng này
+    cv2.rectangle(frame, (x1,y1), (x2,y2), (0,255,0), 2)   # vẽ khung chỉ dẫn
+    
     count += 1
     
     if ( count % 60 == 0 ) :
-        preprocess = preprocess_image(frame)
+        small = cv2.resize(roi, (640, 480))
+        preprocess = preprocess_image(small)
         plate = read_plate(preprocess)
     
-    if len(plate) == 9 and plate != "" and plate != last_plate:
-        now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    if (len(plate) == 9 or len(plate) == 8) and plate != "" and plate != last_plate:
+        now = datetime.datetime.now().strftime("%d%m%Y_%H%M%S")
         last_plate = plate
         last_time = now
         
         print("Xe nhận diện được biển số: ", plate)
         print("Thời gian nhận diện: ", now)
         
-    cv2.imshow('Webcam', frame)
+    cv2.imshow('IPcam', frame)
         
     if cv2.waitKey(1) & 0xFF == ord('q') :
         break
