@@ -31,7 +31,7 @@ while True :
         break
     count += 1
     
-    if ( count % 30 == 0 ) :
+    if ( count % 60 == 0 ) :
         preprocess = preprocess_image(frame)
         plate = read_plate(preprocess)
     
