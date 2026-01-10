@@ -4,6 +4,7 @@ cap = cv2.VideoCapture(0) # 0 = webcam
 while True :
     ret, frame = cap.read()
     if not ret : 
+        print("He thong chua nhan duoc cam")
         break
     
     cv2.imshow('Webcam', frame)
