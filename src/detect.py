@@ -1,6 +1,6 @@
 from ultralytics import YOLO
 
-model = YOLO("src/models/license_plate_detector.pt")
+model = YOLO("models/license_plate_detector.pt")
 
 def detect_plate(frame, conf = 0.35) :
     res = model(frame, conf = conf, verbose = False )
