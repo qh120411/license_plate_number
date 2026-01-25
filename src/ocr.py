@@ -4,12 +4,17 @@ import re
 
 ALLOWED = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 reader = easyocr.Reader(['en'])
-REGEX = "^[0-9]{2}[A-Z]{2}[0-9]{5,6}$"
+REGEX = "^[0-9]{2}[A-Z]{1,2}[0-9]{5,6}$"
+
+def is_valid_plate(text: str) -> bool:
+    return re.match(REGEX, text) is not None
 
 def clean_text(text: str) -> str:
     text = text.upper().replace(" ", "").replace("-", "")
     text = "".join(ch for ch in text if ch in ALLOWED)
-    return text
+    if is_valid_plate(text):
+        return text
+    return None
 
 def preprocess(img) :
     
@@ -26,7 +31,7 @@ def ocr_plate(img) :
     candidates = []
     for _, text, conf in res : 
         t = clean_text(text)
-        if ALLOWED and len(t) >= 6 :
+        if t :
             candidates.append((t, float(conf)))
     
     if not candidates :
