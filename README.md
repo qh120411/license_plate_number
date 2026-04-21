@@ -16,5 +16,5 @@ pip install opencv-python easyocr ultralytics
 ```
 Step 5: Open demo.py and run the script
 ```bash
-python demo.py
+python src/main.py
 ```
